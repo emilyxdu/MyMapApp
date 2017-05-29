@@ -14,6 +14,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
+import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -47,24 +50,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sanfran).title("Born here"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sanfran));
 
-        LatLng sanDiego = new LatLng(32.7, 243.84);
+        /*LatLng sanDiego = new LatLng(32.7, 243.84);
         mMap.addMarker(new MarkerOptions().position(sanDiego).title("Marker in current location, San Diego"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sanDiego));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(sanDiego));*/
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            mMap.setMyLocationEnabled(true);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            Log.d("Location", "Failed Permission check fine");
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 2);
         }
 
-        else{
-            Log.d("Location", "Permission for location not granted");
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED) {
+            Log.d("Location", "Failed permission check coarse");
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
         }
+
+        mMap.setMyLocationEnabled(true);
+
+    }
+
+    public void switchView (GoogleMap googleMap) {
+        if (mMap.getMapType() == (MAP_TYPE_SATELLITE)) {
+            mMap.setMapType(MAP_TYPE_TERRAIN);
+        }
+
+        if (mMap.getMapType() == (MAP_TYPE_TERRAIN)) {
+            mMap.setMapType(MAP_TYPE_SATELLITE);
+        }
+
 
     }
 }
