@@ -2,8 +2,10 @@ package com.example.emily.mymapapp;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -11,10 +13,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -31,6 +36,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean canGetLocation = false;
     private static final long MIN_TIME_BW_UPDATES = 1000 * 15 * 1;
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5;
+    private Location myLocation;
+    private static final long MY_LOC_ZOOM_FACTOR = 15;
 
 
     @Override
@@ -146,29 +153,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public void dropAMarker(GoogleMap googleMap) {
-        mMap = googleMap;
+    public void dropAMarker(String provider) {
+        LatLng userLocation = null;
+        if (locationManager != null) {
 
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            myLocation = locationManager.getLastKnownLocation(provider);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
         }
 
-        mMap.setMyLocationEnabled(true);
-        Location myLocation = mMap.getMyLocation();
-        
+        if (myLocation == null) {
+            Log.d("MyMaps", "No location found");
+            Toast.makeText(this, "No location found", Toast.LENGTH_SHORT);
+            //display a message via Log.d and/or Toast
+        }
 
+        else {
+            //get the user location
+            userLocation = new LatLng(myLocation.getLongitude(), myLocation.getLatitude());
 
-        // get lat/long
-        mMap.addMarker(new MarkerOptions().position(myLocation).title("Current location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+            //display a message with the lat/long
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(userLocation, MY_LOC_ZOOM_FACTOR);
+
+            //drop actual marker on map
+            //if using circles, reference android circle class
+            Circle circle = mMap.addCircle(new CircleOptions()
+                    .center(userLocation).radius(1).strokeColor(Color.RED)
+                    .strokeWidth(2).fillColor(Color.RED));
+
+            mMap.animateCamera(update);
+        }
 
 
 
@@ -185,21 +208,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             //output is Log.d and Toast that GPS is enabled and working
 
-
-
-
-
-
+            dropAMarker("GPS");
             //drop a marker on map- create a method called dropAMarker
+
 
             //remove the network location updates. Hint see the LocationManager for update removal method
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d("MyMaps", "getLocation- GPS enabled- requesting location updates");
+            Toast.makeText(getApplicationContext(), "Using GPS", Toast.LENGTH_SHORT);
+
             //output in Log.d and toast that GPS is enabled and working
+
             //set up a switch statement to check the status input parameter
-            //case LocationProvider.AVAILABLE --> [output message to Log.d and Toast
+            //case LocationProvider.AVAILABLE --> output message to Log.d and Toast
+
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                Log.d("MyMaps", "getLocation- location provider available");
+            }
+
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                getLocation();
+            }
+
+            /*if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                getLocation();
+            }*/
             //case LocationProvider.OUT_OF_SERVICE --> request updates from NETWORK_PROVIDER
             //case LocationProvider.TEMPORARILY_UNAVAILABLE --> request updates from NETWORK_PROVIDER
 
@@ -220,10 +256,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         public void onLocationChanged(Location location) {
+            Log.d("MyMaps", "getLocation- Network enabled- requesting location updates");
+            Toast.makeText(getApplicationContext(), "Using network", Toast.LENGTH_SHORT);
             //output in Log.d and Toast that GPS is enabled and working
 
+            dropAMarker("Network");
             //drop a marker on map create dropAMarker method
 
+            
             //relaunch the network provider request (requestLocationUpdates (NETWORK_PROVIDER))
         }
 
