@@ -85,7 +85,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
         }
 
-        mMap.setMyLocationEnabled(true);
+       // mMap.setMyLocationEnabled(true);
     }
 
     public void switchView(View v) {
@@ -167,7 +167,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            myLocation = locationManager.getLastKnownLocation(provider);
+            if (provider.equals("GPS")) {
+                myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            }
+            else if (provider.equals("Network")) {
+                myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
 
         }
 
@@ -187,7 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //drop actual marker on map
             //if using circles, reference android circle class
             Circle circle = mMap.addCircle(new CircleOptions()
-                    .center(userLocation).radius(1).strokeColor(Color.RED)
+                    .center(userLocation).radius(5).strokeColor(Color.RED)
                     .strokeWidth(2).fillColor(Color.RED));
 
             mMap.animateCamera(update);
@@ -204,7 +209,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onLocationChanged(Location location) {
             Log.d("MyMaps", "getLocation: GPS enabled - requesting location updates");
-            Toast.makeText(getApplicationContext(), "Using GPS", Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(), "Using GPS", Toast.LENGTH_SHORT).show();
 
             //output is Log.d and Toast that GPS is enabled and working
 
@@ -219,23 +224,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onStatusChanged(String provider, int status, Bundle extras) {
             Log.d("MyMaps", "getLocation- GPS enabled- requesting location updates");
             Toast.makeText(getApplicationContext(), "Using GPS", Toast.LENGTH_SHORT);
-
             //output in Log.d and toast that GPS is enabled and working
 
+
             //set up a switch statement to check the status input parameter
+
+            switch(status) {
+                case LocationProvider.AVAILABLE: {
+                    Log.d("MyMaps", "getLocation- GPS provider available");
+                    Toast.makeText(getApplicationContext(), "GPS available", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+
+                case LocationProvider.OUT_OF_SERVICE: {
+                    Log.d("MyMaps", "getLocation- GPS provider out of service");
+                    Toast.makeText(getApplicationContext(), "GPS out of service", Toast.LENGTH_SHORT).show();
+
+
+                }
+
+                case LocationProvider.TEMPORARILY_UNAVAILABLE: {
+                    Log.d("MyMaps", "getLocation- GPS provider temporarily unavailable");
+                    getLocation();
+
+                }
+            }
             //case LocationProvider.AVAILABLE --> output message to Log.d and Toast
-
-            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                Log.d("MyMaps", "getLocation- location provider available");
-            }
-
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                getLocation();
-            }
-
-            /*if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                getLocation();
-            }*/
             //case LocationProvider.OUT_OF_SERVICE --> request updates from NETWORK_PROVIDER
             //case LocationProvider.TEMPORARILY_UNAVAILABLE --> request updates from NETWORK_PROVIDER
 
@@ -263,7 +277,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             dropAMarker("Network");
             //drop a marker on map create dropAMarker method
 
-            
+
+
             //relaunch the network provider request (requestLocationUpdates (NETWORK_PROVIDER))
         }
 
