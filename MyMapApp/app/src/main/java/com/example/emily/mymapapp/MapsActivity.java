@@ -153,6 +153,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /*public void track(View v) {
+        if (locationManager != null) {
+            locationManager = null ;
+        }
+    }*/
+
+    public void clear(View v) {
+        mMap.clear();
+    }
+
     public void dropAMarker(String provider) {
         LatLng userLocation = null;
         if (locationManager != null) {
@@ -277,13 +287,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             dropAMarker("Network");
             //drop a marker on map create dropAMarker method
 
-
-
             //relaunch the network provider request (requestLocationUpdates (NETWORK_PROVIDER))
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d("MyMaps", "getLocation- Network enabled- requesting location updates");
+            Toast.makeText(getApplicationContext(), "Using network", Toast.LENGTH_SHORT);
             //output message in Log.d and Toast
 
         }

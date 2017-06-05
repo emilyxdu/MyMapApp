@@ -13,6 +13,20 @@
         android:text="Switch View" />
 
 
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="118dp"
+        android:layout_height="wrap_content"
+        android:onClick="track"
+        android:text="Track" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:onClick="clear"
+        android:text="Clear" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
