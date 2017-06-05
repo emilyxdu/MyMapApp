@@ -85,7 +85,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION}, 2);
         }
 
-       // mMap.setMyLocationEnabled(true);
+       //mMap.setMyLocationEnabled(true);
     }
 
     public void switchView(View v) {
@@ -93,6 +93,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         } else if (mMap.getMapType() == (GoogleMap.MAP_TYPE_NORMAL)) {
             mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
+    }
+
+    public void clear(View v) {
+        mMap.clear();
+    }
+
+    public void trackOff(View v) {
+        if (locationManager != null) {
+            locationManager = null;
         }
     }
 
@@ -194,6 +204,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Circle circle = mMap.addCircle(new CircleOptions()
                     .center(userLocation).radius(5).strokeColor(Color.RED)
                     .strokeWidth(2).fillColor(Color.RED));
+            mMap.addCircle(circle);
 
             mMap.animateCamera(update);
         }
@@ -215,6 +226,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             dropAMarker("GPS");
             //drop a marker on map- create a method called dropAMarker
+
 
 
             //remove the network location updates. Hint see the LocationManager for update removal method
@@ -277,6 +289,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             dropAMarker("Network");
             //drop a marker on map create dropAMarker method
 
+
+            try {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                        MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES,
+                        locationListenerNetwork);
+            }
+
+            catch (SecurityException e) {
+                Log.d("MyMaps", "getLocation- onLocationChanged network issue");
+            }
 
 
             //relaunch the network provider request (requestLocationUpdates (NETWORK_PROVIDER))
