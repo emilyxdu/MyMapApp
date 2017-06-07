@@ -111,12 +111,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void getLocation(View v) {
         if (canGetLoc) {
-            canGetLoc = false;}
+            canGetLoc = false;
+            Toast.makeText(getApplicationContext(), "Tracking off", Toast.LENGTH_SHORT).show();
+
+        }
 
         else {
             canGetLoc = true;
             try {
-                canGetLoc = false;
+                Toast.makeText(getApplicationContext(), "Tracking on", Toast.LENGTH_SHORT).show();
+
                 locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
                 //get GPS status
@@ -201,7 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (myLocation == null) {
             Log.d("MyMaps", "No location found");
-            Toast.makeText(this, "No location found", Toast.LENGTH_SHORT);
+            Toast.makeText(this, "No location found", Toast.LENGTH_SHORT).show();
             //display a message via Log.d and/or Toast
         }
 
@@ -229,7 +233,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             else if (provider.equals("Network")) {
                 mMap.addCircle(new CircleOptions()
-                        .center(userLocation).radius(5).strokeColor(Color.RED)
+                        .center(userLocation).radius(5).strokeColor(Color.GREEN)
                         .strokeWidth(2).fillColor(Color.GREEN));
                 Log.d("MyMap", "Dropping GPS marker");
                 mMap.animateCamera(update);
@@ -253,7 +257,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onLocationChanged(Location location) {
             Log.d("MyMaps", "getLocation- Network enabled- requesting location updates");
-            Toast.makeText(getApplicationContext(), "Using network", Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(), "Using network", Toast.LENGTH_SHORT).show();
             //output in Log.d and Toast that GPS is enabled and working
 
             dropAMarker("Network");
@@ -344,7 +348,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
             Log.d("MyMaps", "getLocation- GPS enabled- requesting location updates");
-            Toast.makeText(getApplicationContext(), "Using GPS", Toast.LENGTH_SHORT);
+            Toast.makeText(getApplicationContext(), "Using GPS", Toast.LENGTH_SHORT).show();
             //output in Log.d and toast that GPS is enabled and working
 
 
