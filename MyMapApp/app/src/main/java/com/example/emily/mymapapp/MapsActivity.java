@@ -3,6 +3,8 @@ package com.example.emily.mymapapp;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.location.LocationProvider;
@@ -11,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -22,12 +25,16 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PointOfInterest;
+
+import java.io.IOException;
+import java.util.List;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnPoiClickListener {
 
     private GoogleMap mMap;
     private LocationManager locationManager;
@@ -39,6 +46,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location myLocation;
     private static final long MY_LOC_ZOOM_FACTOR = 15;
     private boolean canGetLoc = false;
+    EditText pointOfInt;
 
 
 
@@ -250,6 +258,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+    public void searchPOI(View v) {
+        setContentView(R.layout.activity_maps);
+
+        pointOfInt = (EditText) findViewById(R.id.editText_search);
+        String locSearch = "" + pointOfInt;
+
+        Geocoder gc = new Geocoder(this);
+        try {
+            List<Address> addressList = gc.getFromLocationName(locSearch, 5);
+            
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("MyMaps", "No POI near");
+            Toast.makeText(this, "" + locSearch + " not found", Toast.LENGTH_SHORT).show();
+
+        }
+
+
+
+    }
+
+
 
 
     android.location.LocationListener locationListenerNetwork = new android.location.LocationListener() {
@@ -402,8 +434,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     };
 
 
+    @Override
+    public void onPoiClick(PointOfInterest pointOfInterest) {
 
-
+    }
 }
 
 
