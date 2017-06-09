@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.PointOfInterest;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
@@ -44,10 +45,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final long MIN_TIME_BW_UPDATES = 1000 * 15 * 1;
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5;
     private Location myLocation;
+    private Location searchLocation;
     private static final long MY_LOC_ZOOM_FACTOR = 15;
     private boolean canGetLoc = false;
     EditText pointOfInt;
-
 
 
     @Override
@@ -122,9 +123,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             canGetLoc = false;
             Toast.makeText(getApplicationContext(), "Tracking off", Toast.LENGTH_SHORT).show();
 
-        }
-
-        else {
+        } else {
             canGetLoc = true;
             try {
                 Toast.makeText(getApplicationContext(), "Tracking on", Toast.LENGTH_SHORT).show();
@@ -147,7 +146,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     this.canGetLocation = true;
 
 
-
                     if (isGPSenabled) {
                         Log.d("MyMaps", "getLocation: GPS enabled - requesting location updates");
                         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -166,9 +164,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         Log.d("MyMaps", "getLocation: GPSLoc update request successful.");
                         Toast.makeText(this, "Using GPS", Toast.LENGTH_SHORT);
-                    }
-
-                    else if (isNetWorkEnabled) {
+                    } else if (isNetWorkEnabled) {
                         Log.d("MyMaps", "getLocation: Network enabled - requesting location updates");
                         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                                 MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES,
@@ -204,8 +200,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             if (provider.equals("GPS")) {
                 myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            }
-            else if (provider.equals("Network")) {
+            } else if (provider.equals("Network")) {
                 myLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             }
 
@@ -215,9 +210,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("MyMaps", "No location found");
             Toast.makeText(this, "No location found", Toast.LENGTH_SHORT).show();
             //display a message via Log.d and/or Toast
-        }
-
-        else {
+        } else {
             //get the user location
             userLocation = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
 
@@ -238,8 +231,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.animateCamera(update);
 
 
-            }
-            else if (provider.equals("Network")) {
+            } else if (provider.equals("Network")) {
                 mMap.addCircle(new CircleOptions()
                         .center(userLocation).radius(5).strokeColor(Color.GREEN)
                         .strokeWidth(2).fillColor(Color.GREEN));
@@ -253,8 +245,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-
-
     }
 
 
@@ -265,9 +255,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String locSearch = "" + pointOfInt;
 
         Geocoder gc = new Geocoder(this);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+
         try {
+            List<Address> searches = gc.getFromLocationName(locSearch, 5, myLocation.getLatitude() - 0.04,
+                    myLocation.getLongitude() - 0.04, myLocation.getLatitude() + 0.04,
+                    myLocation.getLongitude() + 0.04);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d("MyMaps", "No POI found");
+            Toast.makeText(this, "" + locSearch + " not found", Toast.LENGTH_SHORT).show();
+        }
+
+        /*try {
             List<Address> addressList = gc.getFromLocationName(locSearch, 5);
-            
+            // app stops working
+            for (int i = 0; i < addressList.size(); i++) {
+                searchLocation = new Location(addressList.get(i).getLatitude(), addressList.get(i).getLongitude());
+                dropAMarker("GPS");
+            }
+
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(searchLocation, MY_LOC_ZOOM_FACTOR);
+            mMap.animateCamera(update);
+
 
 
         } catch (IOException e) {
@@ -275,7 +297,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("MyMaps", "No POI near");
             Toast.makeText(this, "" + locSearch + " not found", Toast.LENGTH_SHORT).show();
 
-        }
+        }*/
 
 
 
