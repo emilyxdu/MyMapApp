@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import static android.media.CamcorderProfile.get;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_NORMAL;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_SATELLITE;
 import static com.google.android.gms.maps.GoogleMap.MAP_TYPE_TERRAIN;
@@ -48,7 +49,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Location searchLocation;
     private static final long MY_LOC_ZOOM_FACTOR = 15;
     private boolean canGetLoc = false;
-    EditText pointOfInt;
+    private EditText pointOfInt;
+    private List<Address> searches;
 
 
     @Override
@@ -270,13 +272,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         try {
-            List<Address> searches = gc.getFromLocationName(locSearch, 5, myLocation.getLatitude() - 0.04,
+            searches = gc.getFromLocationName(locSearch, 5, myLocation.getLatitude() - 0.04,
                     myLocation.getLongitude() - 0.04, myLocation.getLatitude() + 0.04,
                     myLocation.getLongitude() + 0.04);
         } catch (IOException e) {
             e.printStackTrace();
             Log.d("MyMaps", "No POI found");
             Toast.makeText(this, "" + locSearch + " not found", Toast.LENGTH_SHORT).show();
+        }
+
+        for (int i = 0; i < searches.size(); i++) {
+            LatLng result = new LatLng(searches.get(i).getLatitude(), searches.get(i).getLongitude());
+            //Address result = searches.get(i);
+            //LatLng res = new LatLng(result.getLatitude(), result.getLongitude())
+            mMap.addMarker(new MarkerOptions().position(result).title(locSearch));
+
         }
 
         /*try {
