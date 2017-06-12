@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -251,12 +252,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
     public void searchPOI(View v) {
-        setContentView(R.layout.activity_maps);
+        //setContentView(R.layout.activity_maps);
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
 
         pointOfInt = (EditText) findViewById(R.id.editText_search);
-        String locSearch = "" + pointOfInt;
+        //String locSearch = "" + pointOfInt;
+        String locSearch = pointOfInt.getText().toString();
+        Log.d("MyMaps", locSearch);
 
-        Geocoder gc = new Geocoder(this);
+        Geocoder gc = new Geocoder(getApplicationContext());
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -268,11 +273,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
 
+        if (locationManager != null) {
+
+            myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            Log.d("MyMaps", ""+myLocation);
+            if (myLocation == null) {
+                myLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                Log.d("MyMaps", "Network location: "+myLocation);
+                //everything is coming up null whyyyyyy
+            }
+        }
+
+        searches = new ArrayList<Address>();
 
         try {
-            searches = gc.getFromLocationName(locSearch, 5, myLocation.getLatitude() - 0.04,
+
+            Log.d("MyMaps", ""+ myLocation.getLatitude());
+            searches = gc.getFromLocationName(locSearch, 100, myLocation.getLatitude() - 0.04,
                     myLocation.getLongitude() - 0.04, myLocation.getLatitude() + 0.04,
                     myLocation.getLongitude() + 0.04);
         } catch (IOException e) {
@@ -281,6 +299,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "" + locSearch + " not found", Toast.LENGTH_SHORT).show();
         }
 
+        Log.d("MyMaps", "Search not found");
         for (int i = 0; i < searches.size(); i++) {
             LatLng result = new LatLng(searches.get(i).getLatitude(), searches.get(i).getLongitude());
             //Address result = searches.get(i);
