@@ -290,7 +290,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
 
             Log.d("MyMaps", ""+ myLocation.getLatitude());
-            searches = gc.getFromLocationName(locSearch, 100, myLocation.getLatitude() - 0.04,
+            searches = gc.getFromLocationName(locSearch, 5, myLocation.getLatitude() - 0.04,
                     myLocation.getLongitude() - 0.04, myLocation.getLatitude() + 0.04,
                     myLocation.getLongitude() + 0.04);
         } catch (IOException e) {
